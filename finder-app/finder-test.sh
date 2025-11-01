@@ -1,14 +1,18 @@
 #!/bin/sh
 # Tester script for assignment 1 and assignment 2
 # Author: Siddhant Jajoo
+# Modified for Buildroot (absolute config path)
 
 set -e
 set -u
 
+# Absolute path for configuration directory (works inside QEMU)
+CONF_DIR="/etc/finder-app/conf"
+
 NUMFILES=10
 WRITESTR=AELD_IS_FUN
 WRITEDIR=/tmp/aeld-data
-username=$(cat /etc/finder-app/conf/username.txt)
+username=$(cat ${CONF_DIR}/username.txt)
 
 if [ $# -lt 3 ]
 then
@@ -18,7 +22,7 @@ then
 		echo "Using default value ${NUMFILES} for number of files to write"
 	else
 		NUMFILES=$1
-	fi	
+	fi
 else
 	NUMFILES=$1
 	WRITESTR=$2
@@ -31,16 +35,14 @@ echo "Writing ${NUMFILES} files containing string ${WRITESTR} to ${WRITEDIR}"
 
 rm -rf "${WRITEDIR}"
 
-# create $WRITEDIR if not assignment1
-assignment=$(cat /etc/finder-app/conf/assignment.txt)
+# Read assignment name
+assignment=$(cat ${CONF_DIR}/assignment.txt)
 
+# Only create WRITEDIR if not assignment1
 if [ $assignment != 'assignment1' ]
 then
 	mkdir -p "$WRITEDIR"
 
-	#The WRITEDIR is in quotes because if the directory path consists of spaces, then variable substitution will consider it as multiple argument.
-	#The quotes signify that the entire string in WRITEDIR is a single string.
-	#This issue can also be resolved by using double square brackets i.e [[ ]] instead of using quotes.
 	if [ -d "$WRITEDIR" ]
 	then
 		echo "$WRITEDIR created"
@@ -48,9 +50,6 @@ then
 		exit 1
 	fi
 fi
-#echo "Removing the old writer utility and compiling as a native application"
-#make clean
-#make
 
 for i in $( seq 1 $NUMFILES)
 do
